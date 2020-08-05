@@ -10,22 +10,31 @@ import UIKit
 
 class ViewController: UIViewController {
 
+  let fetch = FetchDataOperation()
+  let transform = TransformDataOperation<Array<Int>, Array<Int>>()
+  let comp = CompleteOperation()
   override func viewDidLoad() {
     super.viewDidLoad()
     // Do any additional setup after loading the view.
-    let a = AsyncOperation()
-    let queue = OperationQueue()
-
-    a.addObserver(self, forKeyPath: "isReady", options: .new, context: nil)
-    a.addObserver(self, forKeyPath: "isExecuting", options: .new, context: nil)
-    a.addObserver(self, forKeyPath: "isFinished", options: .new, context: nil)
+    transform.addDependency(fetch)
+    comp.addDependency(transform)
     
-    queue.addOperations([a], waitUntilFinished: true)
+    fetch.completionBlock = {
+      print("fetch finish")
+    }
+    transform.completionBlock = {
+      print("transform finish")
+    }
+    comp.completionBlock = {
+      print("finish all")
+    }
+    
+    let queue = OperationQueue()
+    queue.addOperations([fetch, transform, comp], waitUntilFinished: true)
+    
     print("finish")
+    print(comp.data)
   }
 
-  override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-    print("keypath:\(keyPath) \n obj:\(object)\n change:\(change)")
-  }
 }
 

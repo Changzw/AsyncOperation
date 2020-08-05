@@ -26,8 +26,8 @@ open class AsyncOperation: Operation {
     
     set {
       willChangeValue(forKey: newValue.keyPath)
-      rwlockQueue.sync(flags: .barrier) {
-        _state = newValue
+      rwlockQueue.async(flags: .barrier) {
+        self._state = newValue
       }
       didChangeValue(forKey: state.keyPath)
     }
